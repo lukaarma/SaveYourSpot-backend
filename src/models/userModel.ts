@@ -1,23 +1,16 @@
 import mongoose from 'mongoose';
 
+import { CustomDocument, CustomModel } from '../utils/Types';
 
-// define the object
+
 type UserInterface = {
     firstName: string,
     lastName: string,
     username: string,
-    password: string,
     hash: string,
     creationDate?: Date
 }
-
-// add the build signature to the model
-type UserModelInterface = mongoose.Model<any> & {
-    build(item: UserInterface): UserDocument
-}
-
-// create the mongoose.Document with our custo user properties
-export type UserDocument = mongoose.Document & UserInterface;
+export type UserDocument = CustomDocument<UserInterface>;
 
 // create the schema for the database
 const userSchema = new mongoose.Schema({
@@ -33,10 +26,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true
-    },
-    password: {
-        type: String,
-        required: true
     },
     hash: {
         type: String,
@@ -64,7 +53,8 @@ userSchema.static('build', (item: UserInterface): UserDocument =>  {
 });
 
 // turn the schema into a model
-export const User = mongoose.model<UserDocument, UserModelInterface>('user', userSchema, 'users');
+export const User = mongoose.model<UserDocument, CustomModel<UserInterface>>
+    ('user', userSchema, 'users');
 
 // ...
 // profit!

@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 
 
+// TODO: update model to match UerModel
+
 // define the object
 type RoomInterface = {
     title: string,
