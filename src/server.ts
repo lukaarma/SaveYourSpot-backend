@@ -1,16 +1,27 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import express from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import helmet from 'helmet';
 
-import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+import { argv } from './utils/CommandLineParser';
+import { initDb } from './utils/Databse';
 import { userRouter } from './routers/userRouter';
+import { logger } from './utils/Logger';
 
 
+async function init(): Promise<void> {
+    logger.level = argv.debug ? 'debug' : (argv.verbose ? 'verbose' : 'info');
+    dotenv.config();
 
+    await initDb();
+
+    return;
+}
 
 async function main(): Promise<void> {
+    init();
     const app = express();
 
     app.use(bodyParser.json());
@@ -19,10 +30,11 @@ async function main(): Promise<void> {
 
     app.use('/users', userRouter);
 
-    // FIXME
-    mongoose.connect('mongodb://localhost/SaveYourSpot',{ useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false } ,() => console.log('Database connected!'));
+    const serverConnection = `${process.env.SERVER_ADDRESS}:${process.env.SERVER_PORT}`;
 
-    app.listen(6789, () => console.log('listening on http://localhost:6789'));
+    app.listen(serverConnection, () => logger.info(`listening on '${serverConnection}'`));
+
+    return;
 }
 
 
