@@ -5,10 +5,10 @@ import mongoose from 'mongoose';
 type ReservationInterface = {
     userId: string,
     roomId: number,
-    createdDate: string,
-    excpiredDate: string,
+    createdDate: Date,
+    startDate: Date,
+    duration: number,
     isValid: boolean
-
 }
 
 // add the build signature to the model
@@ -29,16 +29,21 @@ const reservationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    createdDate: {
-        type: String,
+    creationDate: {
+        type: Date,
         required: true
     },
-    expiredDate: {
-        type: String,
+    startDate: {
+        type: Date,
+        required: true
+    },
+    duration: {
+        type: Number,
         required: true
     },
     isValid: {
         type: Boolean,
+        default: true,
         required: true
     }
 });
@@ -46,10 +51,6 @@ const reservationSchema = new mongoose.Schema({
 reservationSchema.set('toJSON', {
     virtuals: true,
     versionKey: false,
-    transform: function (doc, ret) {
-        delete ret._id;
-        delete ret.hash;
-    }
 });
 
 // add the build method

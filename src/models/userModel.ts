@@ -7,7 +7,8 @@ type UserInterface = {
     lastName: string,
     username: string,
     password: string,
-    hash: string
+    hash: string,
+    creationDate?: Date
 }
 
 // add the build signature to the model
@@ -40,6 +41,11 @@ const userSchema = new mongoose.Schema({
     hash: {
         type: String,
         required: true
+    },
+    creationDate: {
+        type: Date,
+        required: true,
+        default: Date.now()
     }
 });
 
@@ -58,7 +64,7 @@ userSchema.static('build', (item: UserInterface): UserDocument =>  {
 });
 
 // turn the schema into a model
-export const User = mongoose.model<UserDocument, UserModelInterface>('user', userSchema);
+export const User = mongoose.model<UserDocument, UserModelInterface>('user', userSchema, 'users');
 
 // ...
 // profit!
