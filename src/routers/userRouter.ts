@@ -5,8 +5,10 @@ import fs from 'fs';
 
 import { User, UserDocument } from '../models/userModel';
 import { LoginBody, SignupBody } from '../utils/Types';
+import { logger } from '../utils/Logger';
 
 
+// TODO: add CSP
 export const userRouter = express.Router();
 const jwtSecret = fs.readFileSync('.key');
 
@@ -26,6 +28,8 @@ userRouter.get('/', async (req, res) => {
 userRouter.post('/login', async (req, res) => {
     const login: LoginBody = req.body;
 
+    logger.debug(`[POST /user/login] body \n${JSON.stringify(req.body, null, 4)} \n`);
+
     const user: UserDocument = await User.findOne({ username: login.username });
 
     if (!user) {
@@ -38,9 +42,9 @@ userRouter.post('/login', async (req, res) => {
 
         const cookieOptions = {
             httpOnly: true,
-            expires: new Date(Date.now() + (24 * 60 * 60 * 1000))
+            expires: new Date(Date.now() + (60 * 60 * 1000))
         };
-        res.cookie('authToken', token, cookieOptions);
+        res.cookie('Authorization', `${token}`, cookieOptions);
 
         res.status(200).json(user.toJSON());
     }

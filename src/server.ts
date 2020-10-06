@@ -29,11 +29,43 @@ async function main(): Promise<void> {
     app.use(bodyParser.json());
     app.use(cookieParser());
     app.use(morgan('dev'));
-    app.use(helmet());
+    // FIXME
+    app.use(
+        helmet({
+            contentSecurityPolicy: {
+                directives: {
+                    defaultSrc: ["'self'"],
+                    scriptSrc: ["'self'"],
+                    objectSrc: ["'none'"]
+                }
+            }
+        })
+    );
+    app.use(express.static('src/app'));
+
+
+    if (argv.debug) {
+        const echo = (req: any, res: any): void => {
+            const message = '[ECHO] \n' +
+                ' **HEADERS** \n' +
+                JSON.stringify(req.headers, null, 4) + '\n' +
+                ' **COOKIES** \n' +
+                JSON.stringify(req.cookies, null, 4) + '\n' +
+                ' **BODY** \n' +
+                JSON.stringify(req.body, null, 4);
+            logger.debug(message);
+            res.status(200).json({ message: 'ECHO done, check console' });
+        };
+
+        app.get('/echo', echo);
+        app.post('/echo', echo);
+        app.put('/echo', echo);
+        app.delete('/echo', echo);
+    }
 
     app.use('/users', userRouter);
 
-    app.listen(process.env.PORT,() => logger.info(`listening on 'http://localhost:${process.env.PORT}'`));
+    app.listen(process.env.PORT, () => logger.info(`listening on 'http://localhost:${process.env.PORT}'`));
 
     return;
 }
