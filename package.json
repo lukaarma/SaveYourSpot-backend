@@ -10,7 +10,7 @@
         "type": "git",
         "url": "git+https://github.com/lukaarma/SaveYourSpot-backend.git"
     },
-    "author": "",
+    "author": "lukaarma (https://github.com/lukaarma) and Lorenzo Romio (https://github.com/lorenzoromio)",
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/lukaarma/SaveYourSpot-backend/issues"
