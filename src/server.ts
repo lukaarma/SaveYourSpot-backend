@@ -1,11 +1,11 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import helmet from 'helmet';
 
 import dotenv from 'dotenv';
 
+import sanitizeXSS from './middleware/sanitizeXSS';
 import { argv } from './utils/CommandLineParser';
 import { initDb } from './utils/Databse';
 import { userRouter } from './routers/userRouter';
@@ -26,10 +26,7 @@ async function main(): Promise<void> {
     await init();
     const app = express();
 
-    app.use(bodyParser.json());
-    app.use(cookieParser());
     app.use(morgan('dev'));
-    // FIXME
     app.use(
         helmet({
             contentSecurityPolicy: {
@@ -41,10 +38,14 @@ async function main(): Promise<void> {
             }
         })
     );
-    app.use(express.static('src/app'));
+    app.use(cookieParser());
+    app.use(express.json());
+    app.use(sanitizeXSS);
 
 
     if (argv.debug) {
+        app.use(express.static('src/app'));
+
         const echo = (req: any, res: any): void => {
             const message = '[ECHO] \n' +
                 ' **HEADERS** \n' +
@@ -62,6 +63,7 @@ async function main(): Promise<void> {
         app.put('/echo', echo);
         app.delete('/echo', echo);
     }
+
 
     app.use('/users', userRouter);
 
