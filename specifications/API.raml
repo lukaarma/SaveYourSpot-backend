@@ -1,0 +1,317 @@
+#%RAML 1.0
+title: SaveYourSpotAPI
+version: 1.0.0
+baseUri: http://localhost:6789
+mediaType: application/json
+
+securitySchemes:
+    x-JWTauth:
+      description: JWT authentication
+      type: x-JWTauth
+      describedBy:
+        headers:
+          Authorization:
+            description: Once authenticated an HTTP only JWT is created.
+            type: string
+        responses:
+          401:
+            description: Invalid or expired token, authenticate again
+          403:
+            description: You don't have access to this resource
+
+
+# -- Types --
+types:
+    # -- User --
+    User:
+        type: object
+        properties:
+            id:
+                type: string
+                required: true
+            firstName:
+                type: string
+                required: true
+            lastName:
+                type: string
+                required: true
+            username:
+                type: string
+                required: true
+            createdDate:
+                type: string
+                required: false
+
+    LoginUser:
+        type: object
+        properties:
+            username:
+                type: string
+                required: true
+            password:
+                type: string
+                required: true
+
+    RegisterUser:
+        type: object
+        properties:
+            firstName:
+                type: string
+                required: true
+            lastName:
+                type: string
+                required: true
+            username:
+                type: string
+                required: true
+            password:
+                type: string
+                required: true
+
+    EditUser:
+        type: object
+        properties:
+            firstName:
+                type: string
+                required: false
+            lastName:
+                type: string
+                required: false
+            username:
+                type: string
+                required: false
+            password:
+                type: string
+                required: false
+
+    CheckUsername:
+        type: object
+        properties:
+            valid:
+                type: boolean
+                required: false
+            error:
+                type: string
+                required: false
+
+# -- Reservation -- #
+    Reservation:
+        type: object
+        properties:
+            id:
+                type: string
+                required: true
+            userId:
+                type: string
+                required: true
+            roomId:
+                type: string
+                required: true
+            creationDate:
+                type: datetime
+                required: true
+            startDate:
+                type: datetime
+                required: true
+            duration:
+                type: number
+                required: true
+            isValid:
+                type: number
+                required: true
+
+    NewReservation:
+        type: object
+        properties:
+            userId:
+                type: string
+                required: true
+            roomId:
+                type: string
+                required: true
+            creationDate:
+                type: datetime
+                required: true
+            startDate:
+                type: datetime
+                required: true
+            duration:
+                type: number
+                required: true
+            isValid:
+                type: number
+                required: true
+
+    EditReservation:
+        type: object
+        properties:
+            roomId:
+                type: string
+                required: true
+            creationDate:
+                type: datetime
+                required: true
+            startDate:
+                type: datetime
+                required: true
+            duration:
+                type: number
+                required: true
+
+# -- Room -- #
+    Org:
+        type: object
+        properties:
+            name:
+                type: string
+            UUID:
+                type: string
+
+    GeneralInfo:
+        type: object
+        properties:
+            totalRooms:
+                type: number
+            totalOrgs:
+                type: number
+            orgs: Org[]
+
+    Room:
+        type: object
+        properties:
+            name:
+                type: string
+            location:
+                type: string
+            totalPlaces:
+                type: number
+
+    RegisterRoom:
+        type: object
+        properties:
+            title:
+                type: string
+                required: true
+            location:
+                type: string
+                required: true
+            totalPlaces:
+                type: number
+                required: true
+
+    EditRoom:
+        type: object
+        properties:
+            title:
+                type: string
+                required: false
+            location:
+                type: string
+                required: false
+            totalPlaces:
+                type: number
+                required: false
+
+# -- EndPoints -- #
+
+/users:
+    get:
+        description: List all users
+        responses:
+            200:
+                body:
+                    application/json:
+                        type: User[]
+
+    /login:
+        post:
+            description: Login to existing user
+            body:
+              LoginUser
+
+    /signup:
+        post:
+            description: Create new user
+            body:
+              RegisterUser
+
+
+    /checkUsername/{username}:
+        post:
+            description: check if username already exist
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: CheckUsername
+
+    /profile:
+        securedBy: x-JWTauth
+
+        get:
+            description: Get user info
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: User
+        put:
+            description: Edit user info
+            body:
+                EditUser
+
+        delete:
+            description: Remove user and all his reservations
+
+        /reservations:
+            get:
+                description: See my reservations
+                responses:
+                    200:
+                        body:
+                            application/json:
+                                type: Reservation[]
+            post:
+                description: Add new reservation
+                body:
+                    NewReservation
+
+        /reservations/{reservationId}:
+            put:
+                description: Edit reservation
+                body:
+                    EditReservation
+
+            delete:
+                description: Cancel reservation
+
+
+
+
+/rooms:
+    get:
+        description: List organizations and general info
+        responses:
+            200:
+                body:
+                    application/json:
+                        type: GeneralInfo
+
+
+    /{orgId}:
+        get:
+            description: List all rooms of the organization defined by orgId
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: Room[]
+
+    /details/{roomId}:
+        get:
+            description: Get all the details of a specified room
+            responses:
+                200:
+                    body:
+                        application/json:
+                            type: RoomInfo
