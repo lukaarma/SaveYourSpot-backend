@@ -11,7 +11,7 @@ securitySchemes:
       describedBy:
         headers:
           Authorization:
-            description: Once authenticated an HTTP only JWT is created.
+            description: Once authenticated an HTTP-only cookie with the JWT is created.
             type: string
         responses:
           401:
@@ -22,30 +22,20 @@ securitySchemes:
 
 # -- Types --
 types:
-    # -- User --
-    User:
+    isValid:
         type: object
         properties:
-            id:
-                type: string
+            ok:
+                type: boolean
                 required: true
-            firstName:
+            error:
                 type: string
-                required: true
-            lastName:
-                type: string
-                required: true
-            username:
-                type: string
-                required: true
-            createdDate:
-                type: string
-                required: false
 
+    # -- /users requests -- #
     LoginUser:
         type: object
         properties:
-            username:
+            email:
                 type: string
                 required: true
             password:
@@ -54,6 +44,7 @@ types:
 
     RegisterUser:
         type: object
+        description: Register a new user. Either phoneNumber or email must be present
         properties:
             firstName:
                 type: string
@@ -61,69 +52,82 @@ types:
             lastName:
                 type: string
                 required: true
-            username:
+            birthDate:
+                type: date-only
+                required: true
+            email:
                 type: string
                 required: true
             password:
+                type: string
+                required: true
+            phoneNumber:
                 type: string
                 required: true
 
     EditUser:
         type: object
+        description: Edit user data. To edit the birthDate the user will have to contact support
         properties:
             firstName:
                 type: string
-                required: false
             lastName:
                 type: string
-                required: false
-            username:
+            email:
                 type: string
-                required: false
             password:
                 type: string
-                required: false
-
-    CheckUsername:
-        type: object
-        properties:
-            valid:
-                type: boolean
-                required: false
-            error:
+            phoneNumber:
                 type: string
-                required: false
-
-# -- Reservation -- #
-    Reservation:
-        type: object
-        properties:
-            id:
-                type: string
-                required: true
-            userId:
-                type: string
-                required: true
-            roomId:
-                type: string
-                required: true
-            creationDate:
-                type: datetime
-                required: true
-            startDate:
-                type: datetime
-                required: true
-            duration:
-                type: number
-                required: true
-            isValid:
-                type: number
-                required: true
 
     NewReservation:
         type: object
+        description: DOW is the day of the week (0->6) for easy scheduling, startTime is in minutes from 00:00
         properties:
-            userId:
+            roomId:
+                type: string
+                required: true
+            startDate:
+                type: date-only
+                required: true
+            DOW:
+                type: number
+                required: true
+            startTime:
+                type: number
+                required: true
+
+    # -- /users responses -- #
+
+    BasicUser:
+        type: object
+        description: Returned after a successful login, contains only the firstName to display
+        properties:
+            firstName:
+                type: string
+                required: true
+
+    User:
+        type: object
+        description: Returned when hitting /profile to give all the users info that can be edited
+        properties:
+            firstName:
+                type: string
+                required: true
+            lastName:
+                type: string
+                required: true
+            email:
+                type: string
+                required: true
+            phoneNumber:
+                type: string
+                required: true
+
+    Reservation:
+        type: object
+        properties:
+            UUID:
                 type: string
                 required: true
             roomId:
@@ -142,21 +146,6 @@ types:
                 type: number
                 required: true
 
-    EditReservation:
-        type: object
-        properties:
-            roomId:
-                type: string
-                required: true
-            creationDate:
-                type: datetime
-                required: true
-            startDate:
-                type: datetime
-                required: true
-            duration:
-                type: number
-                required: true
 
 # -- Room -- #
     Org:
@@ -212,38 +201,43 @@ types:
                 type: number
                 required: false
 
-# -- EndPoints -- #
 
+# -- EndPoints -- #
 /users:
+    # TODO: remove me
     get:
         description: List all users
+        securedBy: x-JWTauth
         responses:
             200:
-                body:
-                    application/json:
-                        type: User[]
+                body: User[]
 
     /login:
         post:
             description: Login to existing user
-            body:
-              LoginUser
+            body: LoginUser
+            responses:
+                200:
+                    body: BasicUser
 
     /signup:
         post:
             description: Create new user
-            body:
-              RegisterUser
-
-
-    /checkUsername/{username}:
-        post:
-            description: check if username already exist
+            body: RegisterUser
             responses:
                 200:
-                    body:
-                        application/json:
-                            type: CheckUsername
+                    body: isValid
+                400:
+                    body: isValid
+
+    /checkEmail/{email}:
+        post:
+            description: check if email already exist
+            responses:
+                200:
+                    body: isValid
+                400:
+                    body: isValid
 
     /profile:
         securedBy: x-JWTauth
@@ -252,35 +246,49 @@ types:
             description: Get user info
             responses:
                 200:
-                    body:
-                        application/json:
-                            type: User
+                    body: User
+
         put:
             description: Edit user info
-            body:
-                EditUser
+            body: EditUser
+            responses:
+                200:
+                    body: isValid
+                400:
+                    body: isValid
 
         delete:
             description: Remove user and all his reservations
+            responses:
+                200:
+                    body: isValid
+                400:
+                    body: isValid
 
         /reservations:
+            securedBy: x-JWTauth
+
             get:
-                description: See my reservations
+                description: See all my reservations
                 responses:
                     200:
-                        body:
-                            application/json:
-                                type: Reservation[]
+                        body: Reservation[]
+
             post:
                 description: Add new reservation
-                body:
-                    NewReservation
+                body: NewReservation
+                responses:
+                    200:
+                        body: isValid
+                    400:
+                        body: isValid
 
         /reservations/{reservationId}:
+            securedBy: x-JWTauth
+
             put:
                 description: Edit reservation
-                body:
-                    EditReservation
+                #body: EditReservation
 
             delete:
                 description: Cancel reservation
@@ -314,4 +322,4 @@ types:
                 200:
                     body:
                         application/json:
-                            type: RoomInfo
+                            #type: RoomInfo
