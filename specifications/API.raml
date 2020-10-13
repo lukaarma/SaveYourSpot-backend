@@ -1,6 +1,6 @@
 #%RAML 1.0
 title: SaveYourSpotAPI
-version: 1.0.0
+version: 1.5.0
 baseUri: http://localhost:6789
 mediaType: application/json
 
@@ -147,59 +147,112 @@ types:
                 required: true
 
 
-# -- Room -- #
+    # -- /rooms requests -- #
+    # -- /rooms responses -- #
     Org:
         type: object
         properties:
-            name:
-                type: string
             UUID:
                 type: string
-
-    GeneralInfo:
-        type: object
-        properties:
+                required: true
+            name:
+                type: string
+                required: true
+            description:
+                type: string
+            streetAddress:
+                type: string
+                required: true
+            phoneNumber:
+                type: string
+                required: true
             totalRooms:
                 type: number
-            totalOrgs:
-                type: number
-            orgs: Org[]
+                required: true
 
     Room:
         type: object
         properties:
+            UUID:
+                type: string
+                required: true
             name:
                 type: string
+                required: true
+            streetAddress:
+                type: string
+                required: true
             location:
                 type: string
-            totalPlaces:
-                type: number
 
-    RegisterRoom:
+    RoomInfo:
         type: object
         properties:
-            title:
+            UUID:
                 type: string
                 required: true
+            name:
+                type: string
+                required: true
+            streetAddress:
+                type: string
+                required: true
+            description:
+                type: string
             location:
                 type: string
+
+    DaySpots:
+        type: object
+        properties:
+            date:
+                type: string
                 required: true
-            totalPlaces:
+            spots: Turn[]
+
+    Turn:
+        type: object
+        properties:
+            time:
+                type: number
+                required: true
+            aviableSpots:
+                type: number
+                required: true
+            maxSpots:
                 type: number
                 required: true
 
-    EditRoom:
-        type: object
-        properties:
-            title:
-                type: string
-                required: false
-            location:
-                type: string
-                required: false
-            totalPlaces:
-                type: number
-                required: false
+# TODO #
+#   CreateRoom:
+#      type: object
+#       properties:
+#           name:
+#               type: string
+#               required: true
+#           streetAddress:
+#               type: string
+#               required: true
+#           location:
+#               type: string
+#           totalSpots:
+#               type: number
+#               required: true
+#           turns:
+
+
+#   EditRoom:
+#       type: object
+#       properties:
+#           name:
+#               type: string
+#               required: false
+#           location:
+#               type: string
+#               required: false
+#           totalPlaces:
+#               type: number
+#               required: false
 
 
 # -- EndPoints -- #
@@ -286,14 +339,8 @@ types:
         /reservations/{reservationId}:
             securedBy: x-JWTauth
 
-            put:
-                description: Edit reservation
-                #body: EditReservation
-
             delete:
                 description: Cancel reservation
-
-
 
 
 /rooms:
@@ -301,25 +348,36 @@ types:
         description: List organizations and general info
         responses:
             200:
-                body:
-                    application/json:
-                        type: GeneralInfo
-
+                body: Org[]
 
     /{orgId}:
         get:
             description: List all rooms of the organization defined by orgId
             responses:
                 200:
-                    body:
-                        application/json:
-                            type: Room[]
+                    body: Room[]
 
     /details/{roomId}:
         get:
             description: Get all the details of a specified room
             responses:
                 200:
-                    body:
-                        application/json:
-                            #type: RoomInfo
+                    body: RoomInfo
+
+    /schedule/{roomId}:
+        post:
+            description: Get the corrent or next n-th week
+            body:
+                type: object
+                properties:
+                    weekNumber:
+                        type: number
+                        required: true
+            responses:
+                200:
+                    body: DaySpots[]
+
+# TODO #
+# /admin:
+#     /createRoom:
+#     /editRoom:
