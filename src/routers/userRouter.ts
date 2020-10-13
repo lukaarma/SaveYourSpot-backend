@@ -7,22 +7,11 @@ import { User, UserDocument } from '../models/userModel';
 import { LoginBody, SignupBody } from '../utils/Types';
 import { logger } from '../utils/Logger';
 
-
-// TODO: add CSP
 export const userRouter = express.Router();
 const jwtSecret = fs.readFileSync('.key');
 
 userRouter.get('/', async (req, res) => {
-    // TODO: move this in middleware
-    if (req.cookies.authToken && jwt.verify(req.cookies.authToken, jwtSecret)) {
-        const users: Array<UserDocument> = await User.find();
-        users.forEach(user => console.log(user.username));
-
-        res.status(200).json(users);
-    }
-    else {
-        res.status(401).send();
-    }
+    res.status(200).send('You reached a protected enpoint, hurray!');
 });
 
 userRouter.post('/login', async (req, res) => {

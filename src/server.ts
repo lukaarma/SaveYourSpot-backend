@@ -1,11 +1,12 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
-import helmet from 'helmet';
+// import helmet from 'helmet';
 
 import dotenv from 'dotenv';
 
 import sanitizeXSS from './middleware/sanitizeXSS';
+import JWTAuth from './middleware/JWTauthorizator';
 import { argv } from './utils/CommandLineParser';
 import { initDb } from './utils/Databse';
 import { userRouter } from './routers/userRouter';
@@ -15,6 +16,7 @@ import { logger } from './utils/Logger';
 async function init(): Promise<void> {
     logger.level = argv.debug ? 'debug' : (argv.verbose ? 'verbose' : 'info');
 
+    logger.info('Loading env variables');
     dotenv.config();
 
     await initDb();
@@ -23,30 +25,25 @@ async function init(): Promise<void> {
 }
 
 async function main(): Promise<void> {
+    logger.info('Startup Initialization..\n');
     await init();
+    logger.info('Initialization done!\n');
+
     const app = express();
 
     app.use(morgan('dev'));
-    app.use(
-        helmet({
-            contentSecurityPolicy: {
-                directives: {
-                    defaultSrc: ["'self'"],
-                    scriptSrc: ["'self'"],
-                    objectSrc: ["'none'"]
-                }
-            }
-        })
-    );
+    // TODO: maybe create a custom **secure** CSP
+    // FIXME: uncomment this => app.use(helmet());
     app.use(cookieParser());
+    app.use(JWTAuth(['/users/profile/'], ['/admin/']));
     app.use(express.json());
     app.use(sanitizeXSS);
 
-
     if (argv.debug) {
+        // FIXME
         app.use(express.static('src/app'));
 
-        const echo = (req: any, res: any): void => {
+        const echo = (req: Request, res: Response): void => {
             const message = '[ECHO] \n' +
                 ' **HEADERS** \n' +
                 JSON.stringify(req.headers, null, 4) + '\n' +
