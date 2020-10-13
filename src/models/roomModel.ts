@@ -1,32 +1,96 @@
 import mongoose from 'mongoose';
 
+import { CustomDocument, CustomModel } from '../utils/Types';
 
-// TODO: update model to match UerModel
 
-// define the object
+type timeFrame = {
+    start: number,
+    end: number,
+    duration: number,
+    maxSpots: number
+}
+
+type weekTimeTable = {
+    [key: number]: Array<timeFrame>
+}
+
 type RoomInterface = {
     title: string,
     totalPlaces: number,
+    weekTimeTable: weekTimeTable,
+    location?: string,
+    description?: string,
+    creationDate?: Date
 }
+export type RoomDocument = CustomDocument<RoomInterface>
 
-// add the build signature to the model
-type RoomModelInterface = mongoose.Model<any> & {
-    build(item: RoomInterface): RoomDocument
-}
-
-// create the mongoose.Document with our custo user properties
-export type RoomDocument = mongoose.Document & RoomInterface;
-
-// create the schema for the database
 const roomSchema = new mongoose.Schema({
-    title: {
+    name: {
         type: String,
         required: true
     },
-    totalPlaces: {
-        type: Number,
+    streetAddress: {
+        type: String,
         required: true
+    },
+    weekTimeTable: {
+        type: {
+            0: [{
+                start: Number,
+                end: Number,
+                duration: Number,
+                maxSpots: Number
+            }],
+            1: [{
+                start: Number,
+                end: Number,
+                duration: Number,
+                maxSpots: Number
+            }],
+            2: [{
+                start: Number,
+                end: Number,
+                duration: Number,
+                maxSpots: Number
+            }],
+            3: [{
+                start: Number,
+                end: Number,
+                duration: Number,
+                maxSpots: Number
+            }],
+            4: [{
+                start: Number,
+                end: Number,
+                duration: Number,
+                maxSpots: Number
+            }],
+            5: [{
+                start: Number,
+                end: Number,
+                duration: Number,
+                maxSpots: Number
+            }],
+            6: [{
+                start: Number,
+                end: Number,
+                duration: Number,
+                maxSpots: Number
+            }]
+        }
+    },
+    location: {
+        type: String,
+    },
+    desciption: {
+        type: String,
+    },
+    creationDate: {
+        type: Date,
+        required: true,
+        default: Date.now()
     }
+
 });
 
 roomSchema.set('toJSON', {
@@ -44,7 +108,6 @@ roomSchema.static('build', (item: RoomInterface): RoomDocument => {
 });
 
 // turn the schema into a model
-export const Room = mongoose.model<RoomDocument, RoomModelInterface>('room', roomSchema);
-
-// ...
-// profit!
+export const Room = mongoose.model<RoomDocument, CustomModel<RoomInterface>>(
+    'room', roomSchema, 'rooms'
+);
