@@ -47,6 +47,7 @@
 ```
 - `location: string`
 - `description: string`
+- ⚙️ `creationDate: datetime`
 - ⚙️ `UUID: MongoDb unique id`
 
 
@@ -55,7 +56,9 @@
 - ➡️ `name: string`
 - ➡️ `streetAddress: string`
 - ➡️ `phoneNumber: string`
+- `email: string`
 -  `description: string`
 - ⚙️ `rooms: [ ROOM.UUIDs ]`
 - ⚙️ `totalRooms: number`
+- ⚙️ `creationDate: datetime`
 - ⚙️ `UUID: MongoDb unique id`
