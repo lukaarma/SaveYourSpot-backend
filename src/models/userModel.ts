@@ -6,8 +6,11 @@ import { CustomDocument, CustomModel } from '../utils/Types';
 type UserInterface = {
     firstName: string,
     lastName: string,
-    username: string,
+    birthDate: string,
+    email: string,
     hash: string,
+    phoneNumber: string,
+    role?: string,
     creationDate?: Date
 }
 export type UserDocument = CustomDocument<UserInterface>;
@@ -22,7 +25,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    username: {
+    birthDate: {
+        type: String,
+        required: true
+    },
+    email: {
         type: String,
         required: true,
         unique: true
@@ -30,6 +37,15 @@ const userSchema = new mongoose.Schema({
     hash: {
         type: String,
         required: true
+    },
+    phoneNumber: {
+        type: String,
+        required: true,
+    },
+    role: {
+        type: String,
+        required: true,
+        default: 'user'
     },
     creationDate: {
         type: Date,
@@ -53,8 +69,11 @@ userSchema.static('build', (item: UserInterface): UserDocument =>  {
 });
 
 // turn the schema into a model
-export const User = mongoose.model<UserDocument, CustomModel<UserInterface>>
-    ('user', userSchema, 'users');
+export const User = mongoose.model<UserDocument, CustomModel<UserInterface>>(
+    'user',         // model name
+    userSchema,     // model schema
+    'users'         // collection name
+);
 
 // ...
 // profit!

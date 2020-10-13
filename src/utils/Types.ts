@@ -1,16 +1,19 @@
 import mongoose from 'mongoose';
 
+
 // REQUEST BODIES //
 type LoginBody = {
-    username: string,
+    email: string,
     password: string
 }
 
 type SignupBody = {
     firstName: string,
     lastName: string,
-    username: string,
-    password: string
+    birthDate: string,
+    email: string,
+    password: string,
+    phoneNumber: string
 }
 
 export { LoginBody, SignupBody };
