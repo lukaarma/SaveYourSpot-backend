@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import morgan from 'morgan';
 // import helmet from 'helmet';
 
@@ -32,6 +33,11 @@ async function main(): Promise<void> {
     const app = express();
 
     app.use(morgan('dev'));
+    // FIXME: now we only allow requests that have origin from localhost:8080
+    app.use(cors({
+        origin: 'http://localhost:8080',
+        credentials: true,
+    }));
     // TODO: maybe create a custom **secure** CSP
     // FIXME: uncomment this => app.use(helmet());
     app.use(cookieParser());
