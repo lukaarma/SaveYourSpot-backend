@@ -10,7 +10,7 @@ type LoginBody = {
 type SignupBody = {
     firstName: string,
     lastName: string,
-    birthDate: string,
+    birthdate: string,
     email: string,
     password: string,
     phoneNumber: string

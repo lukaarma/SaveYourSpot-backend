@@ -6,7 +6,7 @@ import { CustomDocument, CustomModel } from '../utils/Types';
 type UserInterface = {
     firstName: string,
     lastName: string,
-    birthDate: string,
+    birthdate: string,
     email: string,
     hash: string,
     phoneNumber: string,
@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    birthDate: {
+    birthdate: {
         type: String,
         required: true
     },
