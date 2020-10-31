@@ -22,13 +22,16 @@ function normalizePaths(paths: Array<string>): Array<string> {
 /**
  * All input paths should end with a slash and all children will be also secured
  */
-export default (securedPaths?: Array<string>, adminPaths?: Array<string>): ((req: Request, res: Response, next: NextFunction) => void) => {
+export default (securedPaths?: Array<string>, adminPaths?: Array<string>):
+    ((req: Request, res: Response, next: NextFunction) => void) => {
 
     const normalizedSecuredPaths = normalizePaths(securedPaths ?? []);
     const normalizedAdminPaths = normalizePaths(adminPaths ?? []);
 
-    logger.verbose('[JWTauth] secure paths: \n' + JSON.stringify(normalizedSecuredPaths, null, 4));
-    logger.verbose('[JWTauth] admin paths: \n' + JSON.stringify(normalizedAdminPaths, null, 4));
+    logger.verbose('[JWTauth] secure paths: \n' +
+        JSON.stringify(normalizedSecuredPaths, null, 4));
+    logger.verbose('[JWTauth] admin paths: \n' +
+        JSON.stringify(normalizedAdminPaths, null, 4));
 
 
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -36,12 +39,15 @@ export default (securedPaths?: Array<string>, adminPaths?: Array<string>): ((req
         const admin: Array<string> = normalizedAdminPaths;
 
         if (secure.some(secure => req.path.match(secure))) {
-            if (req.cookies.Authorization && jwt.verify(req.cookies.Authorization, jwtSecret)) {
+            if (req.cookies.Authorization &&
+                jwt.verify(req.cookies.Authorization, jwtSecret)) {
                 next();
             }
             else {
                 res.status(401).json({
-                    error: 'Invalid or expired token, please auithenticate again'
+                    code: 101,
+                    type: 'InvalidToken',
+                    message: 'Invalid or expired token, please authenticate again.'
                 });
             }
         }
@@ -57,14 +63,18 @@ export default (securedPaths?: Array<string>, adminPaths?: Array<string>): ((req
                         }
                         else {
                             res.status(403).json({
-                                error: "You don't have permission to acces these resources! \n" +
-                                       'This attempt has been logged'
+                                code: 104,
+                                type: 'accessDenied',
+                                message: "You don't have permission to acces these resources! \n" +
+                                    'This attempt has been logged'
                             });
                         }
                     }
                     else {
                         res.status(500).json({
-                            error: 'Error, user not found! Please contact support.'
+                            code: 201,
+                            type: 'userNotFound',
+                            message: 'Error, user not found! Please contact support.'
                         });
                     }
                     // TODO: finish
@@ -72,13 +82,17 @@ export default (securedPaths?: Array<string>, adminPaths?: Array<string>): ((req
                 }
                 else {
                     res.status(500).json({
-                        error: 'Error decoding auth token, please authenticate again.'
+                        code: 200,
+                        type: 'genericError',
+                        message: 'Error decoding auth token, please authenticate again.'
                     });
                 }
             }
             else {
                 res.status(401).json({
-                    error: 'Invalid or expired token, please auithenticate again.'
+                    code: 101,
+                    type: 'InvalidToken',
+                    message: 'Invalid or expired token, please authenticate again.'
                 });
             }
         }

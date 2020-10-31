@@ -77,3 +77,5 @@ async function main(): Promise<void> {
 
 
 main();
+
+// TODO: move errors to separate file

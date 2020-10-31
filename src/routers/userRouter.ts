@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { CookieOptions } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
@@ -10,9 +10,6 @@ import { logger } from '../utils/Logger';
 export const userRouter = express.Router();
 const jwtSecret = fs.readFileSync('.key');
 
-userRouter.get('/', async (req, res) => {
-    res.status(200).send('You reached a protected enpoint, hurray!');
-});
 
 userRouter.post('/login', async (req, res) => {
     const login: LoginBody = req.body;
@@ -20,41 +17,48 @@ userRouter.post('/login', async (req, res) => {
     logger.debug(`[LOGIN] body \n${JSON.stringify(req.body, null, 4)} \n`);
 
     const user: UserDocument = await User.findOne({ email: login.email });
-
-    if (bcrypt.compareSync(login.password, user.hash)) {
+    if (user && bcrypt.compareSync(login.password, user.hash)) {
         const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '1h' });
 
-        const cookieOptions = {
+        const cookieOptions: CookieOptions = {
             httpOnly: true,
-            expires: new Date(Date.now() + (60 * 60 * 1000))
+            maxAge: (60 * 60 * 1000),
         };
         res.cookie('Authorization', `${token}`, cookieOptions);
 
-        res.status(200).json(user.toJSON());
+        res.status(200).json({
+            firstName: user.firstName,
+            isAdmin: user.role === 'user' ? false : true
+        });
     }
     else {
-        res.status(200).json({
-            error: 'Wrong password!'
+        res.status(401).json({
+            code: 401,
+            type: 'AuthError',
+            message: 'The email or the password are incorrect!'
         });
     }
 });
+
 
 userRouter.post('/signup', async (req, res) => {
     const signup: SignupBody = req.body;
 
     if (await User.findOne({ email: signup.email })) {
-        res.status(200).json({
-            error: 'email already in use'
+        res.status(400).json({
+            code: 102,
+            type: 'EmailNotAviable',
+            message: 'The email is already assigned to a user'
         });
     }
     else {
-        bcrypt.hash(signup.password, 10 /* 12 */).then(async (hash) => {
+        bcrypt.hash(signup.password, /* 10 */ 12).then(async (hash) => {
             const newUser = User.build({
                 firstName: signup.firstName,
                 lastName: signup.lastName,
                 email: signup.email,
                 hash: hash,
-                birthDate: signup.birthDate,
+                birthdate: signup.birthdate,
                 phoneNumber: signup.phoneNumber
             });
 
@@ -66,17 +70,18 @@ userRouter.post('/signup', async (req, res) => {
     }
 });
 
+
 userRouter.post('/checkEmail/:email', async (req, res) => {
     const toCheck = req.params.email;
 
     if (await User.findOne({ email: toCheck })) {
-        res.status(200).json({
-            isValid: false,
-            error: 'Email already in use'
+        res.status(400).json({
+            code: 103,
+            type: 'EmailNotAviable',
+            message: 'This email has already an account associated with it, try logging in'
         });
-
     }
     else {
-        res.status(200).json({ isValid: true });
+        res.status(200).send();
     }
 });

@@ -22,14 +22,18 @@ securitySchemes:
 
 # -- Types --
 types:
-    isValid:
+    Error:
         type: object
         properties:
-            ok:
-                type: boolean
+            code:
+                type: number
                 required: true
-            error:
+            type:
                 type: string
+                required: true
+            message:
+                type: string
+                required: true
 
     # -- /users requests -- #
     LoginUser:
@@ -105,6 +109,9 @@ types:
         properties:
             firstName:
                 type: string
+                required: true
+            isAdmin:
+                type: boolean
                 required: true
 
     User:
@@ -262,14 +269,6 @@ types:
 
 # -- EndPoints -- #
 /users:
-    # TODO: remove me
-    get:
-        description: List all users
-        securedBy: x-JWTauth
-        responses:
-            200:
-                body: User[]
-
     /login:
         post:
             description: Login to existing user
@@ -277,6 +276,8 @@ types:
             responses:
                 200:
                     body: BasicUser
+                401:
+                    body: Error
 
     /signup:
         post:
@@ -284,18 +285,16 @@ types:
             body: RegisterUser
             responses:
                 200:
-                    body: isValid
                 400:
-                    body: isValid
+                    body: Error
 
     /checkEmail/{email}:
         post:
             description: check if email already exist
             responses:
                 200:
-                    body: isValid
                 400:
-                    body: isValid
+                    body: Error
 
     /profile:
         securedBy: x-JWTauth
