@@ -46,9 +46,6 @@ async function main(): Promise<void> {
     app.use(sanitizeXSS);
 
     if (argv.debug) {
-        // FIXME
-        app.use(express.static('src/app'));
-
         const echo = (req: Request, res: Response): void => {
             const message = '[ECHO] \n' +
                 ' **HEADERS** \n' +
@@ -77,5 +74,3 @@ async function main(): Promise<void> {
 
 
 main();
-
-// TODO: move errors to separate file

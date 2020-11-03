@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 
+import ERRORS from '../utils/Errors';
 import { logger } from '../utils/Logger';
 import { User, UserDocument } from '../models/userModel';
 
@@ -44,11 +45,8 @@ export default (securedPaths?: Array<string>, adminPaths?: Array<string>):
                 next();
             }
             else {
-                res.status(401).json({
-                    code: 101,
-                    type: 'InvalidToken',
-                    message: 'Invalid or expired token, please authenticate again.'
-                });
+                res.status(ERRORS.AUTH.INVALID_TOKEN.status)
+                    .json(ERRORS.AUTH.INVALID_TOKEN);
             }
         }
         else if (admin.some(admin => req.path.match(admin))) {
@@ -58,42 +56,27 @@ export default (securedPaths?: Array<string>, adminPaths?: Array<string>):
                 if (decoded && typeof decoded === 'object') {
                     const user: UserDocument = await User.findById(decoded.userId);
                     if (user) {
-                        if (user.role === 'admin') {
+                        if (user.role !== 'user') {
                             next();
                         }
                         else {
-                            res.status(403).json({
-                                code: 104,
-                                type: 'accessDenied',
-                                message: "You don't have permission to acces these resources! \n" +
-                                    'This attempt has been logged'
-                            });
+                            res.status(ERRORS.AUTH.ACCESS_DENIED.status)
+                                .json(ERRORS.AUTH.ACCESS_DENIED);
                         }
                     }
                     else {
-                        res.status(500).json({
-                            code: 201,
-                            type: 'userNotFound',
-                            message: 'Error, user not found! Please contact support.'
-                        });
+                        res.status(ERRORS.INTERNAL.USER_NOT_FOUND.status)
+                            .json(ERRORS.INTERNAL.USER_NOT_FOUND);
                     }
-                    // TODO: finish
-                    next();
                 }
                 else {
-                    res.status(500).json({
-                        code: 200,
-                        type: 'genericError',
-                        message: 'Error decoding auth token, please authenticate again.'
-                    });
+                    res.status(ERRORS.INTERNAL.BAD_TOKEN.status)
+                        .json(ERRORS.INTERNAL.BAD_TOKEN);
                 }
             }
             else {
-                res.status(401).json({
-                    code: 101,
-                    type: 'InvalidToken',
-                    message: 'Invalid or expired token, please authenticate again.'
-                });
+                res.status(ERRORS.AUTH.INVALID_TOKEN.status)
+                    .json(ERRORS.AUTH.INVALID_TOKEN);
             }
         }
         else {
