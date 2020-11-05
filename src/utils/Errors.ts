@@ -42,5 +42,51 @@ export default asErrorsCollection({
         }
     },
     USER: {
+        INVALID_EMAIL: {
+            code: 105,
+            status: 400,
+            type: 'InvalidEmail',
+            message: "This is not a valid email!"
+            
+        },
+        EMAIL_ALREADY_TAKEN: {
+            code: 107,
+            status: 400,
+            type: 'EmailAlreadyTaken',
+            message: "This is email is already taken!"
+        },
+        INVALID_PASSWORD: {
+            code: 109,
+            status: 400,
+            type: 'InvalidPassword',
+            message: "Illegal character inserted. Plesae use only lowecase and uppercase letter, numbers and $@!%*?&"
+
+        }, 
+        PASSWORDS_DONT_MATCH: {
+            code: 111,
+            status: 400,
+            type: 'PasswordDontMatch',
+            message: "Passwords don't match"
+        },
+        INVALID_NAME: {
+            code: 113,
+            status: 400,
+            type: 'InvalidName',
+            message: "This is not a valid name!"
+
+        }, 
+        INVALID_BIRTHDATE: {
+            code: 115,
+            status: 400,
+            type: 'InvalidBirthDate',
+            message: "This is not a valid birth date!"
+        },
+        REQUIRED_FIELD: {
+            code: 199,
+            status: 400,
+            type: 'RequiredField',
+            message: "This field is required!"
+
+        }
     }
 });
