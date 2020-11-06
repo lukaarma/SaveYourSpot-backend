@@ -5,8 +5,9 @@ import fs from 'fs';
 
 import { User, UserDocument } from '../models/userModel';
 import { LoginBody, SignupBody } from '../utils/Types';
-import { logger } from '../utils/Logger';
-import validator from '../validators/userValidator';
+import { logger, iterateValidationError } from '../utils/Logger';
+import { validateUser } from '../validators';
+import ERRORS from '../utils/Errors';
 
 export const userRouter = express.Router();
 const jwtSecret = fs.readFileSync('.key');
@@ -43,13 +44,21 @@ userRouter.post('/login', async (req, res) => {
 
 
 userRouter.post('/signup', async (req, res) => {
-    const validationResult = validator.validateUser.validate(req.body);
-    if (validationResult.error || validationResult.errors) {
-        /// TODO: handle different errors
-        res.status(400).send('suca');
+    const { value, error } = validateUser.validate(req.body, { presence: 'required' });
+    if (error) {
+        logger.debug(iterateValidationError(error));
+        const response = ERRORS.GENERAL.MISSING_FIELD;
+
+        if (error.details[0].type === 'any.required') {
+            response.details = error.message;
+            res.status(ERRORS.GENERAL.MISSING_FIELD.status).send(response);
+        }
+        else {
+            res.status(400).send('suca');
+        }
     }
     else {
-        const signup: SignupBody = validationResult.value;
+        const signup: SignupBody = value;
 
         if (await User.findOne({ email: signup.email })) {
             res.status(400).json({

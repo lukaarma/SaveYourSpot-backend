@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { ValidationError } from 'joi';
 import winston from 'winston';
 
 
@@ -44,4 +45,15 @@ function customPrint (info: winston.Logform.TransformableInfo): string {
     }
 
     return `${info.level}: ${info.message} - ${info.timestamp}`;
+}
+
+
+export function iterateValidationError(err: ValidationError): string {
+    return '\n' +
+        `_original: ${err._original}\n` +
+        `details: ${err.details}\n` +
+        `isJoi: ${err.isJoi}\n` +
+        `message: ${err.message}\n` +
+        `name: ${err.name}\n` +
+        `stack: ${err.stack}\n`;
 }
