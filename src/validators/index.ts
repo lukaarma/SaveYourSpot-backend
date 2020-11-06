@@ -1,6 +1,6 @@
 import customJoi from './extendedJoi';
 
-const validateUser = customJoi.object({
+export const validateUser = customJoi.object({
     email: customJoi.string()
         .trim()
         .pattern(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9][a-zA-Z0-9-]{1,252}(?:\.[a-zA-Z0-9]{2,})+$/),
@@ -28,6 +28,3 @@ const validateUser = customJoi.object({
         // min 14 years old
         .max(new Date(Date.now() - 14 * 365 * 24 * 60 * 60 * 1000)),
 });
-
-
-export default { validateUser };
