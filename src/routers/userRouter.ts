@@ -6,6 +6,7 @@ import fs from 'fs';
 import { User, UserDocument } from '../models/userModel';
 import { LoginBody, SignupBody } from '../utils/Types';
 import { logger } from '../utils/Logger';
+import validator from '../validators/userValidator';
 
 export const userRouter = express.Router();
 const jwtSecret = fs.readFileSync('.key');
@@ -42,31 +43,38 @@ userRouter.post('/login', async (req, res) => {
 
 
 userRouter.post('/signup', async (req, res) => {
-    const signup: SignupBody = req.body;
-
-    if (await User.findOne({ email: signup.email })) {
-        res.status(400).json({
-            code: 102,
-            type: 'EmailNotAviable',
-            message: 'The email is already assigned to a user'
-        });
+    const validationResult = validator.validateUser.validate(req.body);
+    if (validationResult.error || validationResult.errors) {
+        /// TODO: handle different errors
+        res.status(400).send('suca');
     }
     else {
-        bcrypt.hash(signup.password, /* 10 */ 12).then(async (hash) => {
-            const newUser = User.build({
-                firstName: signup.firstName,
-                lastName: signup.lastName,
-                email: signup.email,
-                hash: hash,
-                birthdate: signup.birthdate,
-                phoneNumber: signup.phoneNumber
+        const signup: SignupBody = validationResult.value;
+
+        if (await User.findOne({ email: signup.email })) {
+            res.status(400).json({
+                code: 102,
+                type: 'EmailNotAviable',
+                message: 'The email is already assigned to a user'
             });
+        }
+        else {
+            bcrypt.hash(signup.password, /* 10 */ 12).then(async (hash) => {
+                const newUser = User.build({
+                    firstName: signup.firstName,
+                    lastName: signup.lastName,
+                    email: signup.email,
+                    hash: hash,
+                    birthdate: signup.birthdate,
+                    phoneNumber: signup.phoneNumber
+                });
 
-            logger.debug(`[SIGNUP] new user: ${JSON.stringify(newUser.toObject(), null, 4)}`);
+                logger.debug(`[SIGNUP] new user: ${JSON.stringify(newUser.toObject(), null, 4)}`);
 
-            await newUser.save();
-            res.status(200).json(newUser.toJSON());
-        });
+                await newUser.save();
+                res.status(200).json(newUser.toJSON());
+            });
+        }
     }
 });
 
