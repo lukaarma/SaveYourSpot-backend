@@ -65,13 +65,13 @@ export default (securedPaths?: Array<string>, adminPaths?: Array<string>):
                         }
                     }
                     else {
-                        res.status(ERRORS.INTERNAL.USER_NOT_FOUND.status)
-                            .json(ERRORS.INTERNAL.USER_NOT_FOUND);
+                        res.status(ERRORS.GENERAL.USER_NOT_FOUND.status)
+                            .json(ERRORS.GENERAL.USER_NOT_FOUND);
                     }
                 }
                 else {
-                    res.status(ERRORS.INTERNAL.BAD_TOKEN.status)
-                        .json(ERRORS.INTERNAL.BAD_TOKEN);
+                    res.status(ERRORS.GENERAL.BAD_TOKEN.status)
+                        .json(ERRORS.GENERAL.BAD_TOKEN);
                 }
             }
             else {

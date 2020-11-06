@@ -8,11 +8,11 @@ type LoginBody = {
 }
 
 type SignupBody = {
+    email: string,
+    password: string,
     firstName: string,
     lastName: string,
     birthdate: string,
-    email: string,
-    password: string,
     phoneNumber: string
 }
 
