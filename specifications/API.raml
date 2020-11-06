@@ -50,20 +50,23 @@ types:
         type: object
         description: Register a new user. Either phoneNumber or email must be present
         properties:
+            email:
+                type: string
+                required: true
+            password:
+                type: string
+                required: true
+            repeatPassword:
+                type: string
+                required: true
             firstName:
                 type: string
                 required: true
             lastName:
                 type: string
                 required: true
-            birthDate:
+            birthdate:
                 type: date-only
-                required: true
-            email:
-                type: string
-                required: true
-            password:
-                type: string
                 required: true
             phoneNumber:
                 type: string
