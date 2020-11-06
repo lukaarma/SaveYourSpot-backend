@@ -37,7 +37,7 @@ export default asErrorsCollection({
             code: 103,
             status: 403,
             type: 'AccessDenied',
-            message: "You don't have permission to acces these resources! \n" +
+            message: "You don't have permission to acces these resources \n" +
                 'This attempt has been logged'
         }
     },
@@ -46,22 +46,22 @@ export default asErrorsCollection({
             code: 105,
             status: 400,
             type: 'InvalidEmail',
-            message: "This is not a valid email!"
-            
+            message: 'This is not a valid email'
+
         },
         EMAIL_ALREADY_TAKEN: {
             code: 107,
             status: 400,
             type: 'EmailAlreadyTaken',
-            message: "This is email is already taken!"
+            message: 'This is email is already taken'
         },
         INVALID_PASSWORD: {
             code: 109,
             status: 400,
             type: 'InvalidPassword',
-            message: "Illegal character inserted. Plesae use only lowecase and uppercase letter, numbers and $@!%*?&"
+            message: 'Illegal character inserted. Plesae use only lowecase and uppercase letter, numbers and $@!%*?&'
 
-        }, 
+        },
         PASSWORDS_DONT_MATCH: {
             code: 111,
             status: 400,
@@ -72,20 +72,20 @@ export default asErrorsCollection({
             code: 113,
             status: 400,
             type: 'InvalidName',
-            message: "This is not a valid name!"
+            message: 'This is not a valid name'
 
-        }, 
+        },
         INVALID_BIRTHDATE: {
             code: 115,
             status: 400,
             type: 'InvalidBirthDate',
-            message: "This is not a valid birth date!"
+            message: 'This is not a valid birth date'
         },
         REQUIRED_FIELD: {
             code: 199,
             status: 400,
             type: 'RequiredField',
-            message: "This field is required!"
+            message: 'This field is required'
 
         }
     }
